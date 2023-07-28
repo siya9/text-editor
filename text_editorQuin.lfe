@@ -27,49 +27,33 @@
           (string:tokens line " "))))
       (string:tokens text "\n"))))
 
+; (defun input () ; old
+;     (let (((tuple 'ok (list guessednum)) (io:fread "" "~s")))
+;         guessednum))
+
+(defun update-formatted-prompt (input-line)
+  (let ((formatted-input-line (wrap-text input-line max-line-length)))
+    (handle-input input-line formatted-input-line)))
+
+(defun handle-input (input-line formatted-input-line)
+  (lfe_io:format (lists:concat ">>> " formatted-input-line)) ; Print the prompt and current input line
+  (case (lfe_io:getch 'noecho)
+    ((newline)
+     (lfe_io:format "~n")   ; Move to the next line
+     (handle-input "" ""))  ; Clear the input line and formatted input
+    ((escape)
+     input-line)            ; Return the input when the user presses Escape
+    ((8) ; ASCII code for backspace
+     (if (not (== "" input-line))
+       (handle-input (string:sub_string input-line 1 (- (length input-line) 1)) formatted-input-line) ; Remove the last character
+       (handle-input "" formatted-input-line))) ; Continue reading input
+    (c
+     (handle-input (lists:concat input-line (string c)) formatted-input-line) ; Add the character to the input line
+     )))
+
 (defun input ()
-    (let (((tuple 'ok (list guessednum)) (io:fread "" "~s")))
-        guessednum))
-
-; Function to get user input with text wrapping
-; (defun input ()
-;   (let ((input-line "")         ; Initialize the current input line
-;         (max-line-length 120)   ; Set the maximum line length
-;         (prompt ">>> ")         ; Set the input prompt
-;         (formatted-prompt "")) ; Initialize the formatted prompt
-
-;     ; Function to update the formatted prompt and input line
-;     (letrec ((update-formatted-prompt
-;                (lambda ()
-;                  (let ((formatted-input-line (wrap-text input-line max-line-length)))
-;                    (set formatted-prompt (lists:concat prompt formatted-input-line))))))
-
-;       ; Function to handle user input
-;       (letrec ((handle-input
-;                  (lambda ()
-;                    (lfe_io:format formatted-prompt) ; Print the prompt and current input line
-;                    (case (lfe_io:getch 'noecho)
-;                      ((newline)
-;                       (lfe_io:format "~n")         ; Move to the next line
-;                       (set input-line "")      ; Clear the input line
-;                       (update-formatted-prompt) ; Update the formatted prompt
-;                       (handle-input))          ; Continue reading input
-;                      ((escape)
-;                       (input-line))            ; Return the input when the user presses Escape
-;                      ((8) ; ASCII code for backspace
-;                       (if (not (string= "" input-line))
-;                         (set input-line (string:sub input-line 0 (- (length input-line) 1))) ; Remove the last character
-;                         ())
-;                       (update-formatted-prompt) ; Update the formatted prompt
-;                       (handle-input))           ; Continue reading input
-;                      (c
-;                       (set input-line (lists:concat input-line (string c))) ; Add the character to the input line
-;                       (update-formatted-prompt) ; Update the formatted prompt
-;                       (handle-input))))))       ; Continue reading input
-
-;       (update-formatted-prompt) ; Initially format the prompt without any input
-;       (handle-input))))         ; Start handling user input
-; )
+  (letrec ((max-line-length 120)) ; Set the maximum line length
+    (update-formatted-prompt ""))) ; Start handling user input
 
 ; (defun readanddisplayfile ()
 ;   (io:format "Enter the filename: ")
@@ -109,3 +93,4 @@
 ;     (let (((tuple 'ok (list guessednum)) (io:fread "" "~s")))
 ;         guessednum))
 ; (wrap-text "helooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo" 120)
+; (wrap-text "heloooooooooooooooooooooooooooooooooooooooooo oooooooooooooo oooooooooooooooooooooooooooo ooooooo ooooooooooooooooooooooooo" 120)
