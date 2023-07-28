@@ -2,6 +2,31 @@
     (export (main 0))
 )
 
+(defun split-long-word (word sizeofword)
+  (if (>= (length word) sizeofword)
+    (cons (string:sub_string word 1 sizeofword) (split-long-word (string:sub_string word sizeofword) sizeofword))
+    (list word)))
+    
+; Function to wrap text to a maximum line-length of `max-line-length`
+(defun wrap-text (text max-line-length)
+  (++
+    (lists:map
+      (lambda (line)
+        (++ (string:tokens line "~n"))
+        (++ (lists:map
+          (lambda (word)
+            (let ((word-chunks (split-long-word word max-line-length)))
+              (++
+                (lists:map
+                  (lambda (chunk)
+                    (let ((line-length (length (++ line chunk))))
+                      (if (> line-length max-line-length)
+                        (++ "~n" chunk)
+                        chunk)))
+                  word-chunks))))
+          (string:tokens line " "))))
+      (string:tokens text "~n"))))
+
 (defun input ()
     (let (((tuple 'ok (list guessednum)) (io:fread "" "~s")))
         guessednum))
@@ -21,7 +46,11 @@
                      )
             )
          )
-     (io:format (lists:concat message))    
+        (io:format (lists:concat message)) ; what it was before :) 
     )
     (input)
 )
+; (defun input ()
+;     (let (((tuple 'ok (list guessednum)) (io:fread "" "~s")))
+;         guessednum))
+; (wrap-text "helooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo" 120)
