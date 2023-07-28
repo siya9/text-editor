@@ -31,6 +31,20 @@
     (let (((tuple 'ok (list guessednum)) (io:fread "" "~s")))
         guessednum))
 
+(defun readanddisplayfile ()
+  (io:format "Enter the filename: ")
+  (let* ((filename (io:get_line 'prompt))
+         (filename (string:trim filename))
+         (result (file:read_file filename)))
+    (case result
+      ((tuple ok content)
+       (io:format "File Contents:~n~s~n" (binary_to_list content)))
+      ((tuple error reason)
+       (io:format "Error: ~s~n" reason))
+    )
+    )
+)
+
 ; first place that gets called 
 (defun main ()
     (let ((message '("Welcome to this text-editor!~n"
@@ -49,6 +63,7 @@
         (io:format (lists:concat message)) ; what it was before :) 
     )
     (input)
+    (readanddisplayfile)
 )
 ; (defun input ()
 ;     (let (((tuple 'ok (list guessednum)) (io:fread "" "~s")))
